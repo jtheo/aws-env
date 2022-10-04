@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ssm"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 const (
@@ -16,19 +17,27 @@ const (
 	formatDotenv  = "dotenv"
 )
 
-func main() {
-	if os.Getenv("AWS_ENV_PATH") == "" {
-		log.Println("aws-env running locally, without AWS_ENV_PATH")
-		return
-	}
+var Version = "0.0"
 
+func main() {
 	recursivePtr := flag.Bool("recursive", false, "recursively process parameters on path")
 	format := flag.String("format", formatExports, "output format")
+	version := flag.Bool("version", false, "print version of aws-env")
 	flag.Parse()
+
+	if *version {
+		fmt.Printf("%s version %s\n", os.Args[0], Version)
+		return
+	}
 
 	if *format == formatExports || *format == formatDotenv {
 	} else {
 		log.Fatal("Unsupported format option. Must be 'exports' or 'dotenv'")
+	}
+
+	if os.Getenv("AWS_ENV_PATH") == "" {
+		log.Println("aws-env running locally, without AWS_ENV_PATH")
+		return
 	}
 
 	sess := CreateSession()

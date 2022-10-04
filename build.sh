@@ -1,12 +1,23 @@
 #!/bin/bash
 
-BUILD_DIR=bin
-NAME=aws-env
+D=$(basename "${PWD}")
 
-mkdir $BUILD_DIR
+name=${1:-$D}
+mkdir -p bin
 
-for GOOS in darwin linux windows; do
-    for GOARCH in 386 amd64; do
-        GOOS=$GOOS GOARCH=$GOARCH go build -v -o $BUILD_DIR/$NAME-$GOOS-$GOARCH
+read -r h m s <<< "$(date "+%H %M %S")"
+minor=$(( (h + 1) * (m + 1) * (${s#0} + 1) ))
+major=$(date +%Y%m%d)
+version="${major}.${minor}"
+
+oses=( linux darwin )
+archs=( amd64 arm64 )
+
+for GOOS in "${oses[@]}";do
+    for GOARCH in "${archs[@]}"; do
+        echo "Building ${GOARCH} for ${GOOS}..."
+        GOOS=${GOOS} GOARCH=${GOARCH} CGO_ENABLED=0 \
+            go build -ldflags "-s -w -X 'main.Version=v${version}'" \
+                -o "bin/${name}-${GOOS}-${GOARCH}" .
     done
 done
