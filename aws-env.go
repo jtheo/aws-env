@@ -30,8 +30,7 @@ func main() {
 		return
 	}
 
-	if *format == formatExports || *format == formatDotenv {
-	} else {
+	if !(*format == formatExports || *format == formatDotenv) {
 		log.Fatal("Unsupported format option. Must be 'exports' or 'dotenv'")
 	}
 
@@ -66,7 +65,6 @@ func ExportVariables(client *ssm.SSM, path string, recursive bool, format string
 	}
 
 	output, err := client.GetParametersByPath(input)
-
 	if err != nil {
 		log.Panic(err)
 	}
